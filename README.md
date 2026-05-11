@@ -19,14 +19,12 @@ Local DNS Resolution: Configured via `/etc/hosts` and DNS Server for domain-base
 1. SQL Injection (SQLi) Prevention:
 
 The Attack: Executed a standard SQL injection payload (`admin' OR '1'='1`) against the DVWA login module from the Kali Linux attacker machine. 
-The Defense: SafeLine WAF successfully intercepted the anomalous SQL syntax. 
-SOC Analysis:(Insert Screenshot of SafeLine WAF dashboard showing the blocked SQLi attempt) 
+The Defense: SafeLine WAF successfully intercepted the anomalous SQL syntax.  
 
 2. HTTP Flood & DoS Mitigation:
 
 The Attack: Simulated a high-volume Layer 7 Denial of Service (DoS) attack targeting the web server resources.
 The Defense: Configured SafeLine WAF's HTTP Flood defense mechanisms, setting custom thresholds (requests per second) and ban durations to automatically throttle and drop excessive traffic.
-SOC Analysis:(Insert Screenshot of WAF logs showing rate limiting/dropped packets)
 
 3. Custom Access Controls (IP Deny Rules)
    
