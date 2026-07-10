@@ -1,46 +1,67 @@
-Home SOC Web Defense Lab: SafeLine WAF & DVWA
+# SafeLine WAF Home Lab
 
-🛡️ Project Overview :
-This project documents the deployment of a robust reverse-proxy Web Application Firewall (WAF) architecture to protect a vulnerable web server. Built entirely within a local virtualization environment, the lab demonstrates the practical configuration of SafeLine WAF to intercept, monitor, and block malicious HTTP traffic targeting a Damn Vulnerable Web App (DVWA) instance. 
+A hands-on cybersecurity home lab that deploys **DVWA (Damn Vulnerable Web App)** behind **SafeLine WAF**, then simulates real-world attacks (SQL injection, XSS, HTTP flood) from Kali Linux to observe detection and blocking in real time.
 
-This project serves as a foundational component for a broader Home Security Operations Center (SOC) lab, paving the way for advanced log analysis and SIEM (e.g., Splunk) integration.
+Built on **VMware Workstation Pro** with an **Ubuntu Server 22.04 LTS** target and a **Kali Linux** attacker VM.
 
-🏗️ Architecture & Network Topology :
-The environment simulates a real-world external attack surface and internal defensive perimeter using VMWareWorkstation Pro. 
-Attacker Machine: Kali Linux (Bridged Network) 
-Web Server / Victim: Ubuntu Server 22.04 LTS running a LAMP Stack (Apache, MySQL, PHP) 
-Vulnerable Application: Damn Vulnerable Web App (DVWA) listening on an alternate port (8080) 
-Defensive Layer: SafeLine WAF handling reverse proxy routing (Port 443) and SSL termination 
-Local DNS Resolution: Configured via `/etc/hosts` and DNS Server for domain-based routing (`dvwa.local`) 
+## Architecture
 
+```
+[Kali Linux Attacker]
+        |
+        | HTTP/HTTPS requests (port 443)
+        v
+[SafeLine WAF] <-- Nginx reverse proxy, port 9443 management UI
+        |
+        | Proxied traffic (port 8080)
+        v
+[Ubuntu Server -- DVWA] <-- Apache on port 8080, MySQL backend
+```
 
-⚔️ Attack & Defense Scenarios :-
+## Stack
 
-1. SQL Injection (SQLi) Prevention:
+| Component | Choice |
+|---|---|
+| Virtualization | VMware Workstation Pro |
+| Target OS | Ubuntu Server 22.04 LTS |
+| Attack Machine | Kali Linux (latest) |
+| WAF | SafeLine WAF (Community / Pro) |
+| Vulnerable App | DVWA |
+| Difficulty | Beginner – Intermediate |
 
-The Attack: Executed a standard SQL injection payload (`admin' OR '1'='1`) against the DVWA login module from the Kali Linux attacker machine. 
-The Defense: SafeLine WAF successfully intercepted the anomalous SQL syntax. 
+## Repository Structure
 
-2. HTTP Flood & DoS Mitigation:
+```
+.
+├── README.md
+├── docs/
+│   └── SafeLine_WAF_Homelab_Guide.pdf     # full step-by-step build guide
+├── configs/
+│   ├── apache-ports.conf                  # Apache listen-port change (80 -> 8080)
+│   ├── dvwa-config.inc.php                # DVWA DB config template
+│   └── safeline-site-config.md            # SafeLine "Add Site" settings reference
+└── scripts/
+    ├── 01-ubuntu-lamp-setup.sh             # LAMP stack + system prep
+    ├── 02-dvwa-install.sh                  # Clone & configure DVWA
+    ├── 03-ssl-cert-generate.sh             # Self-signed SSL cert for SafeLine
+    ├── 04-safeline-install.sh              # SafeLine WAF installer
+    └── kali-hosts-setup.sh                 # /etc/hosts entry helper for Kali
+```
 
-The Attack: Simulated a high-volume Layer 7 Denial of Service (DoS) attack targeting the web server resources.
-The Defense: Configured SafeLine WAF's HTTP Flood defense mechanisms, setting custom thresholds (requests per second) and ban durations to automatically throttle and drop excessive traffic.
+## Quick Start
 
-3. Custom Access Controls (IP Deny Rules)
-   
-The Defense: Implemented custom access control policies to outright block specific malicious actors. A custom deny rule was created specifically to drop all traffic originating from the Kali Linux IP address.
-SOC Analysis: Verified the rule execution by attempting standard `curl` requests from the attacker machine, resulting in immediate blocks.
+1. Read the full guide in `docs/SafeLine_WAF_Homelab_Guide.pdf`.
+2. Build the two VMs in VMware Workstation Pro (bridged networking).
+3. On the Ubuntu Server VM, run the scripts in order:
+   ```
+   scripts/01-ubuntu-lamp-setup.sh
+   scripts/02-dvwa-install.sh
+   scripts/03-ssl-cert-generate.sh
+   scripts/04-safeline-install.sh
+   ```
+4. On the Kali VM, run `scripts/kali-hosts-setup.sh` to set up DNS resolution.
+5. Follow Section 7 onward in the guide to onboard DVWA into SafeLine and run the attack demos.
 
-🔧 Skills Demonstrated :-
+## Disclaimer
 
-Infrastructure as Code & Virtualization: VirtualBox networking, bridged adapters, and headless server management.
-Linux System Administration: LAMP stack configuration, port binding, file permissions, and BIND DNS zone file creation.
-Offensive Security Validation: Practical application of OWASP top 10 vulnerabilities (SQLi) using manual testing methods.
-Defensive Security Configuration: WAF deployment, SSL/TLS certificate generation, reverse proxy routing, and traffic threshold tuning.
-Log Monitoring: Identifying indicators of compromise (IoCs) within WAF administrative dashboards.
-
-🚀 Future Scope :-
-
-To further mature this environment into a comprehensive monitoring platform, upcoming integrations include:
-Forwarding SafeLine WAF and Apache access logs to a centralized Splunk instance for SIEM dashboard creation.
-Routing all virtual machine traffic through a pfSense firewall to monitor deeper network-level intrusions.
+This lab is for educational use in an isolated home-lab network only. Do not expose DVWA or these configurations to the public internet.
