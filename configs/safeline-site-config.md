@@ -1,4 +1,4 @@
-# SafeLine WAF — "Add Site" Configuration Reference
+# SafeLine WAF — "https://docs.waf.chaitin.com/en/GetStarted/Deploy" Configuration Reference
 
 Use these values when onboarding DVWA in the SafeLine management UI
 (**Site / Applications → Add Site**).
